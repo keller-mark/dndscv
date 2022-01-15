@@ -87,3 +87,27 @@ dNdS_overall <- sum(!mut_base_df$is_synonymous) / sum(mut_base_df$is_synonymous)
 dNdS_transition_only <- sum(!transition_only_df$is_synonymous) / sum(transition_only_df$is_synonymous)
 dNdS_transversion_only <- sum(!transversion_only_df$is_synonymous) / sum(transversion_only_df$is_synonymous)
 
+
+# Plot
+library(ggplot2)
+
+dNdS_df <- data.frame(
+    dNdS = c(dNdS_overall, dNdS_transition_only, dNdS_transversion_only),
+    Mechanism = c("All", "Transition Only", "Transversion Only"),
+    Num_NS = c(sum(!mut_base_df$is_synonymous), sum(!transition_only_df$is_synonymous), sum(!transversion_only_df$is_synonymous)),
+    Num_S = c(sum(mut_base_df$is_synonymous), sum(transition_only_df$is_synonymous), sum(transversion_only_df$is_synonymous))
+)
+dNdS_df$Ratio = paste(dNdS_df$Num_NS, dNdS_df$Num_S, sep = " / ")
+
+ggplot(dNdS_df, aes(Mechanism, dNdS, color = Mechanism, label = Ratio)) +
+    geom_point(size = 4) +
+    geom_text(check_overlap = TRUE, nudge_y = 0.03, nudge_x = 0.3) +
+    expand_limits(y = 0) +
+    geom_hline(yintercept=1.0, linetype="dashed", color = "black") +
+    theme(legend.position="none")
+
+ggsave("pqe_plots/dNdS_no_control_simplest.png", scale = 1, width = 5, height = 6, units = "in")
+
+# TODO: compute for missense and nonsense separately
+# TODO: figure out what Normalized dN/dS means Greenman et al. 2006
+# TODO: incorporate a substitution weight matrix
