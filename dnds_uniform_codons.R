@@ -88,22 +88,20 @@ transversion_missense_only_df <- transversion_only_df[transversion_only_df$impac
 transversion_nonsense_only_df <- transversion_only_df[transversion_only_df$impact %in% c("Synonymous", "Nonsense"), ]
 
 # Count dN/dS ratio
-get_dN <- function(df) {
-    return(sum(!df$is_synonymous))
+get_dN <- function(df, mechanism_types, ns_types) {
+    ns_df <- df[df$impact %in% ns_types, ]
+    ns_subs <- sum(!ns_df[ns_df$mechanism %in% mechanism_types, ]$is_synonymous)
+    ns_sites <- sum(!ns_df$is_synonymous)
+    return(ns_subs / ns_sites)
 }
-get_dS <- function(df) {
-    return(sum(df$is_synonymous))
+get_dS <- function(df, mechanism_types, ns_types) {
+    s_subs <- sum(df[df$mechanism %in% mechanism_types, ]$is_synonymous)
+    s_sites <- sum(df$is_synonymous)
+    return(s_subs / s_sites)
 }
-get_dNdS <- function(df) {
-    return(get_dN(df) / get_dS(df))
+get_dNdS <- function(df, mechanism_types, ns_types) {
+    return(get_dN(df, mechanism_types, ns_types) / get_dS(df, mechanism_types, ns_types))
 }
-dNdS_overall <- get_dNdS(mut_base_df)
-dNdS_transition_only <- get_dNdS(transition_only_df)
-dNdS_transversion_only <- get_dNdS(transversion_only_df)
-dNdS_transition_missense_only <- get_dNdS(transition_missense_only_df)
-dNdS_transition_nonsense_only <- get_dNdS(transition_nonsense_only_df)
-dNdS_transversion_missense_only <- get_dNdS(transversion_missense_only_df)
-dNdS_transversion_nonsense_only <- get_dNdS(transversion_nonsense_only_df)
 
 # Plot
 library(ggplot2)
@@ -119,45 +117,45 @@ dNdS_df <- data.frame(
         "Transversion Only (Nonsense)"
     ),
     dNdS = c(
-        get_dNdS(mut_base_df),
-        get_dNdS(transition_only_df),
-        get_dNdS(transition_missense_only_df),
-        get_dNdS(transition_nonsense_only_df),
-        get_dNdS(transversion_only_df),
-        get_dNdS(transversion_missense_only_df),
-        get_dNdS(transversion_nonsense_only_df)
+        get_dNdS(mut_base_df, c("Transition", "Transversion"), c("Missense", "Nonsense")),
+        get_dNdS(mut_base_df, c("Transition"), c("Missense", "Nonsense")),
+        get_dNdS(mut_base_df, c("Transition"), c("Missense")),
+        get_dNdS(mut_base_df, c("Transition"), c("Nonsense")),
+        get_dNdS(mut_base_df, c("Transversion"), c("Missense", "Nonsense")),
+        get_dNdS(mut_base_df, c("Transversion"), c("Missense")),
+        get_dNdS(mut_base_df, c("Transversion"), c("Nonsense"))
     ),
     Num_NS = c(
-        get_dN(mut_base_df),
-        get_dN(transition_only_df),
-        get_dN(transition_missense_only_df),
-        get_dN(transition_nonsense_only_df),
-        get_dN(transversion_only_df),
-        get_dN(transversion_missense_only_df),
-        get_dN(transversion_nonsense_only_df)
+        get_dN(mut_base_df, c("Transition", "Transversion"), c("Missense", "Nonsense")),
+        get_dN(mut_base_df, c("Transition"), c("Missense", "Nonsense")),
+        get_dN(mut_base_df, c("Transition"), c("Missense")),
+        get_dN(mut_base_df, c("Transition"), c("Nonsense")),
+        get_dN(mut_base_df, c("Transversion"), c("Missense", "Nonsense")),
+        get_dN(mut_base_df, c("Transversion"), c("Missense")),
+        get_dN(mut_base_df, c("Transversion"), c("Nonsense"))
     ),
     Num_S = c(
-        get_dS(mut_base_df),
-        get_dS(transition_only_df),
-        get_dS(transition_missense_only_df),
-        get_dS(transition_nonsense_only_df),
-        get_dS(transversion_only_df),
-        get_dS(transversion_missense_only_df),
-        get_dS(transversion_nonsense_only_df)
+        get_dS(mut_base_df, c("Transition", "Transversion"), c("Missense", "Nonsense")),
+        get_dS(mut_base_df, c("Transition"), c("Missense", "Nonsense")),
+        get_dS(mut_base_df, c("Transition"), c("Missense")),
+        get_dS(mut_base_df, c("Transition"), c("Nonsense")),
+        get_dS(mut_base_df, c("Transversion"), c("Missense", "Nonsense")),
+        get_dS(mut_base_df, c("Transversion"), c("Missense")),
+        get_dS(mut_base_df, c("Transversion"), c("Nonsense"))
     )
 )
-dNdS_df$Ratio = paste(dNdS_df$Num_NS, dNdS_df$Num_S, sep = " / ")
+dNdS_df$Ratio = paste(round(dNdS_df$Num_NS, 2), round(dNdS_df$Num_S, 2), sep = " / ")
 dNdS_df$Mechanism <- factor(dNdS_df$Mechanism, levels = dNdS_df$Mechanism)
 
 ggplot(dNdS_df, aes(Mechanism, dNdS, color = Mechanism, label = Ratio)) +
     geom_point(size = 4) +
-    geom_text(check_overlap = TRUE, nudge_y = 0.5, nudge_x = 0) +
-    expand_limits(y = 0) +
+    geom_text(check_overlap = TRUE, nudge_y = 0.1, nudge_x = 0) +
+    ylim(0, 2) +
     geom_hline(yintercept=1.0, linetype="dashed", color = "black") +
     theme(legend.position="none", axis.text.x = element_text(angle = 45, hjust=1))
 
-ggsave("pqe_plots/dNdS_no_control_simplest.png", scale = 1, width = 5, height = 6, units = "in")
+ggsave("pqe_plots/dNdS_no_control_simplest.png", scale = 1, width = 6, height = 6, units = "in")
 
-# TODO: compute for missense and nonsense separately
-# TODO: figure out what Normalized dN/dS means Greenman et al. 2006
 # TODO: incorporate a substitution weight matrix
+
+
