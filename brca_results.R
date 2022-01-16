@@ -60,7 +60,22 @@ run_subs_models <- function(mut_df) {
     return(out)
 }
 
-get_out_df <- function(out) {
+get_sel_df <- function(out, mechanism) {
+    out_df <- data.frame()
+    for(param_run_name in names(out)) {
+        param_run <- out[[param_run_name]]
+        param_df <- param_run$sel_cv
+        param_df$Num_Rates <- stringr::str_split(param_run_name, "_")[[1]][1]
+        param_df$Covariates <- stringr::str_split(param_run_name, "_")[[1]][2]
+
+        out_df <- rbind(out_df, param_df)
+    }
+    out_df$Mechanism <- mechanism
+    out_df$Num_Rates <- factor(out_df$Num_Rates, levels = c("1", "2", "12", "192"))
+    return(out_df)
+}
+
+get_out_df <- function(out, mechanism) {
     out_df <- data.frame()
     for(param_run_name in names(out)) {
         param_run <- out[[param_run_name]]
@@ -82,7 +97,7 @@ get_out_df <- function(out) {
     #     # FOR NOW, only use without covariates since the results seem to be the same
     #     out_df <- out_df[out_df$Covariates == "without"]
     # }
-
+    out_df$Mechanism <- mechanism
     return(out_df)
 }
 
@@ -90,7 +105,7 @@ brca_clean_df <- clean_msd_df(brca_df)
 
 out <- run_subs_models(brca_clean_df)
 saveRDS(out, "data/out.rds")
-out_df <- get_out_df(out)
+out_df <- get_out_df(out, "Original")
 
 ggplot(out_df, aes(Num_Rates, AIC, color = Num_Rates)) +
     geom_point(size = 4) +
@@ -115,7 +130,7 @@ ggplot(out_df, aes(x = Num_Rates, y = globaldnds_all_mle, group = Num_Rates)) +
 
 ggsave("pqe_plots/dnds_by_sm_brca_uk.png", scale = 1, width = 6, height = 5, units = "in")
 
-## TODO: change transition mutations to transversions
+## Change transition mutations to transversions
 
 add_mechanism_cols <- function(df) {
     df$mechanism <- apply(df, 1, function(row) {
@@ -187,6 +202,9 @@ convert_tv_to_ts <- function(df) {
     return(df)
 }
 
+# Clean up
+rm("out")
+
 brca_clean_df <- add_mechanism_cols(brca_clean_df)
 
 brca_transversion_only_df <- convert_ts_to_tv(brca_clean_df)
@@ -198,23 +216,25 @@ brca_transition_only_clean_df <- clean_mech_df(brca_transition_only_df)
 out_transversion_only <- run_subs_models(brca_transversion_only_clean_df)
 saveRDS(out_transversion_only, "data/out_transversion_only.rds")
 
+# Clean up
+rm("out_transversion_only")
+
 out_transition_only <- run_subs_models(brca_transition_only_clean_df)
 saveRDS(out_transition_only, "data/out_transition_only.rds")
+
+# Clean up
+rm("out_transition_only")
 
 
 # Load from cached
 out <- readRDS("data/out.rds")
 out_transversion_only <- readRDS("data/out_transversion_only.rds")
+out_transition_only <- readRDS("data/out_transition_only.rds")
 
 # Process cached
-out_df <- get_out_df(out)
-out_df$Mechanism <- "Original"
-
-out_transversion_only_df <- get_out_df(out_transversion_only)
-out_transversion_only_df$Mechanism <- "Transversion Only"
-
-out_transition_only_df <- get_out_df(out_transition_only)
-out_transition_only_df$Mechanism <- "Transition Only"
+out_df <- get_out_df(out, "Original")
+out_transversion_only_df <- get_out_df(out_transversion_only, "Transversion Only")
+out_transition_only_df <- get_out_df(out_transition_only, "Transition Only")
 
 # TODO: uncomment
 #out_all_df <- rbind(out_df, out_transversion_only_df, out_transition_only_df)
@@ -236,6 +256,22 @@ ggplot(out_all_df, aes(x = Num_Rates, y = globaldnds_all_mle, color = Mechanism)
     )
 
 ggsave("pqe_plots/dnds_by_sm_tstv_brca_uk.png", scale = 1, width = 8, height = 6, units = "in")
+
+
+# Plot gene-level data
+sel_df <- get_sel_df(out, "Original")
+sel_transversion_only_df <- get_sel_df(out_transversion_only, "Transversion Only")
+sel_transition_only_df <- get_sel_df(out_transition_only, "Transition Only")
+
+
+sel_all_df <- rbind(sel_df, sel_transversion_only_df, sel_transition_only_df)
+
+ggplot(sel_all_df, aes(x = Num_Rates, y = qallsubs_cv, color = Mechanism)) +
+    geom_boxplot() +
+    ylim(0, 1) +
+    labs(title="Distribution of gene-level significance values", y = "q-value", x = "Substitution Model: Number of Rate Parameters", color = "Dataset")
+
+
 
 ## ----------
 ## With neutral simulated dataset
