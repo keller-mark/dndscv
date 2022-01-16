@@ -8,8 +8,8 @@ sigs_df <- t(read.table(sigs_path, header = TRUE, row.names = 1, check.names = F
 sbs1 <- as.list(sigs_df[, "1"])
 sbs22 <- as.list(sigs_df[, "22"])
 
-N_SAMPLE <- 3
-N_MUT_PER_SAMPLE <- 3
+N_SAMPLE <- 100
+N_MUT_PER_SAMPLE <- 100
 
 # SETUP
 
