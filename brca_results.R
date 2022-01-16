@@ -4,13 +4,12 @@
 library(dndscv)
 library(ggplot2)
 
-
 ## With breast cancer dataset
 sigs_path <- file.path("inst", "extdata", "COSMIC-signatures.SBS-96.tsv")
 sigs_df <- t(read.table(sigs_path))
 
 brca_path <- file.path("inst", "extdata", "standard.PCAWG-BRCA-UK_BRCA_27.WGS.tsv")
-brca_df <- read.table(brca_path, header = TRUE, sep = "\t", nrows = 5000)
+brca_df <- read.table(brca_path, header = TRUE, sep = "\t", nrows = 2000)
 
 # Prepare mutation-signatures-data mutation table for dndscv
 clean_msd_df <- function(df) {
@@ -90,6 +89,7 @@ get_out_df <- function(out) {
 brca_clean_df <- clean_msd_df(brca_df)
 
 out <- run_subs_models(brca_clean_df)
+saveRDS(out, "data/out.rds")
 out_df <- get_out_df(out)
 
 ggplot(out_df, aes(Num_Rates, AIC, color = Num_Rates)) +
@@ -196,20 +196,48 @@ brca_transversion_only_clean_df <- clean_mech_df(brca_transversion_only_df)
 brca_transition_only_clean_df <- clean_mech_df(brca_transition_only_df)
 
 out_transversion_only <- run_subs_models(brca_transversion_only_clean_df)
-out_transversion_only_df <- get_out_df(out_transversion_only)
-out_transversion_only_df$Mechanism <- "Transversion"
+saveRDS(out_transversion_only, "data/out_transversion_only.rds")
 
 out_transition_only <- run_subs_models(brca_transition_only_clean_df)
-out_transition_only_df <- get_out_df(out_transition_only)
-out_transition_only_df$Mechanism <- "Transition"
+saveRDS(out_transition_only, "data/out_transition_only.rds")
 
+
+# Load from cached
+out <- readRDS("data/out.rds")
+out_transversion_only <- readRDS("data/out_transversion_only.rds")
+
+# Process cached
+out_df <- get_out_df(out)
 out_df$Mechanism <- "Original"
 
-out_all_df <- rbind(out_df, out_transversion_only_df, out_transition_only_df)
+out_transversion_only_df <- get_out_df(out_transversion_only)
+out_transversion_only_df$Mechanism <- "Transversion Only"
 
+out_transition_only_df <- get_out_df(out_transition_only)
+out_transition_only_df$Mechanism <- "Transition Only"
 
-## TODO: change transversion mutations to transitions
+# TODO: uncomment
+#out_all_df <- rbind(out_df, out_transversion_only_df, out_transition_only_df)
+# TODO: remove
+out_all_df <- rbind(out_df, out_transversion_only_df)
 
+## Plot
+
+ggplot(out_all_df, aes(x = Num_Rates, y = globaldnds_all_mle, color = Mechanism)) +
+    geom_point(size = 3, aes(color = Mechanism), position = position_dodge(width=0.5)) +
+    geom_errorbar(aes(ymin=globaldnds_all_cilow, ymax=globaldnds_all_cihigh, color = Mechanism), width=.2, position = position_dodge(width=0.5))  +
+    expand_limits(y = 0) +
+    geom_hline(yintercept = 1.0, linetype="dashed", color = "black") +
+    labs(
+        title="Global dN/dS by substitution model on PCAWG-BRCA-UK dataset",
+        x="Substitution Model: Number of Rate Parameters",
+        y = "Global dN/dS",
+        color = "Dataset"
+    )
+
+ggsave("pqe_plots/dnds_by_sm_tstv_brca_uk.png", scale = 1, width = 8, height = 6, units = "in")
+
+## ----------
 ## With neutral simulated dataset
 
 
