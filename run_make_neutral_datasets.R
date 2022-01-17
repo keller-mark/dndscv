@@ -105,7 +105,7 @@ find_next_match <- function(ref_trinuc, mut_abs_pos) {
             ref3 <- sprintf("%s%s%s", ol_gene_info$seq_cds1up[pos_ind], ol_gene_info$seq_cds[pos_ind], ol_gene_info$seq_cds1down[pos_ind])
 
             if(ref3 == ref_trinuc) {
-                return(list(chr = mut_chr, pos = mut_pos))
+                return(list(chr = mut_chr_hg19, pos = mut_pos, strand = ol_gene_info$strand))
             }
 
             mut_pos <- mut_pos + 1
@@ -137,6 +137,7 @@ make_sample_mut_df <- function(sample_id, n_mut, mut_sig) {
         df <- rbind(df, list(
             pos = next_match$pos,
             chr = next_match$chr,
+            strand = next_match$strand,
             alt = alt,
             ref = ref
         ))
@@ -162,7 +163,6 @@ sbs22_samples <- as.list(paste0("sbs22_sample_v2_", seq_len(N_SAMPLE)))
 sbs1_mut_dfs <- mclapply(sbs1_samples, make_sbs1_mut_df_for_sample, mc.cores = detectCores())
 sbs1_mut_df <- do.call(rbind, sbs1_mut_dfs)
 write.csv(sbs1_mut_df, file = "inst/extdata/neutral_sbs1_v2.csv")
-
 
 sbs22_mut_dfs <- mclapply(sbs22_samples, make_sbs22_mut_df_for_sample, mc.cores = detectCores())
 sbs22_mut_df <- do.call(rbind, sbs22_mut_dfs)

@@ -1,18 +1,42 @@
 library(dndscv)
 
-## With neutral datasets
+## Run on neutral datasets
+
+dna_complement <- list(
+    `A` = "T",
+    `C` = "G",
+    `G` = "C",
+    `T` = "A"
+)
 
 # Prepare table for dndscv
 clean_sbs_df <- function(df) {
+    # Take reverse complement if on -1 strand
+    df$ref <- apply(df, 1, function(row) {
+        if(as.numeric(row[["strand"]]) == -1) {
+            return(dna_complement[[row[["ref"]]]])
+        } else {
+            return(row[["ref"]])
+        }
+    })
+    df$alt <- apply(df, 1, function(row) {
+        if(as.numeric(row[["strand"]]) == -1) {
+            return(dna_complement[[row[["alt"]]]])
+        } else {
+            return(row[["alt"]])
+        }
+    })
+
     # Remove extra columns
-    filtered_df <- df[, c("sampleID", "chr",      "pos",      "ref",      "alt")]
-    return(filtered_df)
+    df <- df[, c("sampleID", "chr",      "pos",      "ref",      "alt")]
+
+    return(df)
 }
 
-sbs1_path <- "inst/extdata/neutral_sbs1.csv"
+sbs1_path <- "inst/extdata/neutral_sbs1_v2.csv"
 sbs1_df <- clean_sbs_df(read.table(sbs1_path, header = TRUE, sep = ","))
 
-sbs22_path <- "inst/extdata/neutral_sbs22.csv"
+sbs22_path <- "inst/extdata/neutral_sbs22_v2.csv"
 sbs22_df <- clean_sbs_df(read.table(sbs22_path, header = TRUE, sep = ","))
 
 clean_mech_df <- function(df) {
@@ -99,6 +123,8 @@ get_out_df <- function(out, mechanism) {
 
 out_sbs1 <- run_subs_models(sbs1_df)
 saveRDS(out_sbs1, "inst/extdata/out_sbs1.rds")
+
+rm("out_sbs1")
 
 out_sbs22 <- run_subs_models(sbs22_df)
 saveRDS(out_sbs22, "inst/extdata/out_sbs22.rds")
