@@ -156,15 +156,15 @@ make_sbs22_mut_df_for_sample <- function(sample_id) {
 
 # Make output dataframes
 
-sbs1_samples <- as.list(paste0("sbs1_sample_", seq_len(N_SAMPLE)))
-sbs22_samples <- as.list(paste0("sbs22_sample_", seq_len(N_SAMPLE)))
+sbs1_samples <- as.list(paste0("sbs1_sample_v2_", seq_len(N_SAMPLE)))
+sbs22_samples <- as.list(paste0("sbs22_sample_v2_", seq_len(N_SAMPLE)))
 
 sbs1_mut_dfs <- mclapply(sbs1_samples, make_sbs1_mut_df_for_sample, mc.cores = detectCores())
 sbs1_mut_df <- do.call(rbind, sbs1_mut_dfs)
-write.csv(sbs1_mut_df, file = "inst/extdata/neutral_sbs1.csv")
+write.csv(sbs1_mut_df, file = "inst/extdata/neutral_sbs1_v2.csv")
 
 
 sbs22_mut_dfs <- mclapply(sbs22_samples, make_sbs22_mut_df_for_sample, mc.cores = detectCores())
 sbs22_mut_df <- do.call(rbind, sbs22_mut_dfs)
-write.csv(sbs22_mut_df, file = "inst/extdata/neutral_sbs22.csv")
+write.csv(sbs22_mut_df, file = "inst/extdata/neutral_sbs22_v2.csv")
 
