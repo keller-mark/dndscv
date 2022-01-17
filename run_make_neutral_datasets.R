@@ -8,8 +8,8 @@ sigs_df <- t(read.table(sigs_path, header = TRUE, row.names = 1, check.names = F
 sbs1 <- as.list(sigs_df[, "1"])
 sbs22 <- as.list(sigs_df[, "22"])
 
-N_SAMPLE <- 100
-N_MUT_PER_SAMPLE <- 100
+N_SAMPLE <- 50
+N_MUT_PER_SAMPLE <- 50
 
 # SETUP
 
@@ -43,24 +43,24 @@ chr_len <- c(
 genome_len <- sum(chr_len)
 
 data("refcds_hg19", package="dndscv")
-gene_list = sapply(RefCDS, function(x) x$gene_name)
+gene_list <- sapply(RefCDS, function(x) x$gene_name)
 
 # Expanding the reference sequences [for faster access]
 for (j in 1:length(RefCDS)) {
-    RefCDS[[j]]$seq_cds = base::strsplit(as.character(RefCDS[[j]]$seq_cds), split="")[[1]]
-    RefCDS[[j]]$seq_cds1up = base::strsplit(as.character(RefCDS[[j]]$seq_cds1up), split="")[[1]]
-    RefCDS[[j]]$seq_cds1down = base::strsplit(as.character(RefCDS[[j]]$seq_cds1down), split="")[[1]]
+    RefCDS[[j]]$seq_cds <- base::strsplit(as.character(RefCDS[[j]]$seq_cds), split="")[[1]]
+    RefCDS[[j]]$seq_cds1up <- base::strsplit(as.character(RefCDS[[j]]$seq_cds1up), split="")[[1]]
+    RefCDS[[j]]$seq_cds1down <- base::strsplit(as.character(RefCDS[[j]]$seq_cds1down), split="")[[1]]
     if (!is.null(RefCDS[[j]]$seq_splice)) {
-        RefCDS[[j]]$seq_splice = base::strsplit(as.character(RefCDS[[j]]$seq_splice), split="")[[1]]
-        RefCDS[[j]]$seq_splice1up = base::strsplit(as.character(RefCDS[[j]]$seq_splice1up), split="")[[1]]
-        RefCDS[[j]]$seq_splice1down = base::strsplit(as.character(RefCDS[[j]]$seq_splice1down), split="")[[1]]
+        RefCDS[[j]]$seq_splice <- base::strsplit(as.character(RefCDS[[j]]$seq_splice), split="")[[1]]
+        RefCDS[[j]]$seq_splice1up <- base::strsplit(as.character(RefCDS[[j]]$seq_splice1up), split="")[[1]]
+        RefCDS[[j]]$seq_splice1down <- base::strsplit(as.character(RefCDS[[j]]$seq_splice1down), split="")[[1]]
     }
 }
-ind = setNames(1:length(RefCDS), sapply(RefCDS,function(x) x$gene_name))
-gr_genes_ind = ind[gr_genes$names]
+ind <- setNames(1:length(RefCDS), sapply(RefCDS,function(x) x$gene_name))
+gr_genes_ind <- ind[gr_genes$names]
 
 # Subfunction: obtaining the codon positions of a coding mutation given the exon intervals
-chr2cds = function(pos,cds_int,strand) {
+chr2cds <- function(pos,cds_int,strand) {
     if (strand==1) {
         return(which(unlist(apply(cds_int, 1, function(x) x[1]:x[2])) %in% pos))
     } else if (strand==-1) {
@@ -161,11 +161,10 @@ sbs22_samples <- as.list(paste0("sbs22_sample_", seq_len(N_SAMPLE)))
 
 sbs1_mut_dfs <- mclapply(sbs1_samples, make_sbs1_mut_df_for_sample, mc.cores = detectCores())
 sbs1_mut_df <- do.call(rbind, sbs1_mut_dfs)
+write.csv(sbs1_mut_df, file = "inst/extdata/neutral_sbs1.csv")
 
 
 sbs22_mut_dfs <- mclapply(sbs22_samples, make_sbs22_mut_df_for_sample, mc.cores = detectCores())
 sbs22_mut_df <- do.call(rbind, sbs22_mut_dfs)
-
-write.csv(sbs1_mut_df, file = "inst/extdata/neutral_sbs1.csv")
 write.csv(sbs22_mut_df, file = "inst/extdata/neutral_sbs22.csv")
 

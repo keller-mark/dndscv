@@ -36,20 +36,20 @@ run_subs_models <- function(mut_df) {
     dnds_with_cv_12r = dndscv(mut_df, sm = "12r_3w", max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
     dnds_with_cv_2r = dndscv(mut_df, sm = "2r_3w", max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
     dnds_with_cv_1r = dndscv(mut_df, sm = get_1r_3w_matrix(), max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
-    dnds_without_cv_192r = dndscv(mut_df, sm = "192r_3w", cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
-    dnds_without_cv_12r = dndscv(mut_df, sm = "12r_3w", cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
-    dnds_without_cv_2r = dndscv(mut_df, sm = "2r_3w", cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
-    dnds_without_cv_1r = dndscv(mut_df, sm = get_1r_3w_matrix(), cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
+    #dnds_without_cv_192r = dndscv(mut_df, sm = "192r_3w", cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
+    #dnds_without_cv_12r = dndscv(mut_df, sm = "12r_3w", cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
+    #dnds_without_cv_2r = dndscv(mut_df, sm = "2r_3w", cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
+    #dnds_without_cv_1r = dndscv(mut_df, sm = get_1r_3w_matrix(), cv = NULL, max_coding_muts_per_sample = max_coding_muts_per_sample, max_muts_per_gene_per_sample = Inf)
 
     out <- list(
         "1_with_cv" = dnds_with_cv_1r,
         "2_with_cv" = dnds_with_cv_2r,
         "12_with_cv" = dnds_with_cv_12r,
-        "192_with_cv" = dnds_with_cv_192r,
-        "1_without_cv" = dnds_without_cv_1r,
-        "2_without_cv" = dnds_without_cv_2r,
-        "12_without_cv" = dnds_without_cv_12r,
-        "192_without_cv" = dnds_without_cv_192r
+        "192_with_cv" = dnds_with_cv_192r
+        #"1_without_cv" = dnds_without_cv_1r,
+        #"2_without_cv" = dnds_without_cv_2r,
+        #"12_without_cv" = dnds_without_cv_12r,
+        #"192_without_cv" = dnds_without_cv_192r
     )
     return(out)
 }

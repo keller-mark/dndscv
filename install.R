@@ -8,6 +8,4 @@ if(!requireNamespace("stringr", quietly = TRUE)) {
 if(!requireNamespace("devtools", quietly = TRUE)) {
     install.packages("devtools")
 }
-if(!requireNamespace("dndscv", quietly = TRUE)) {
-    devtools::install()
-}
+devtools::install()
