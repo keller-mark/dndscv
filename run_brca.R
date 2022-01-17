@@ -97,8 +97,8 @@ get_out_df <- function(out, mechanism) {
 
 brca_clean_df <- clean_msd_df(brca_df)
 
-out <- run_subs_models(brca_clean_df)
-saveRDS(out, "data/out.rds")
+#out <- run_subs_models(brca_clean_df)
+#saveRDS(out, "inst/extdata/out.rds")
 
 
 ## Change transition mutations to transversions
@@ -181,10 +181,10 @@ brca_transition_only_df <- convert_tv_to_ts(brca_clean_df)
 brca_transversion_only_clean_df <- clean_mech_df(brca_transversion_only_df)
 brca_transition_only_clean_df <- clean_mech_df(brca_transition_only_df)
 
-out_transversion_only <- run_subs_models(brca_transversion_only_clean_df)
-saveRDS(out_transversion_only, "data/out_transversion_only.rds")
+#out_transversion_only <- run_subs_models(brca_transversion_only_clean_df)
+#saveRDS(out_transversion_only, "inst/extdata/out_transversion_only.rds")
 
 out_transition_only <- run_subs_models(brca_transition_only_clean_df)
-saveRDS(out_transition_only, "data/out_transition_only.rds")
+saveRDS(out_transition_only, "inst/extdata/out_transition_only.rds")
 
 
