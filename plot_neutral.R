@@ -34,13 +34,6 @@ get_out_df <- function(out, mechanism) {
     }
     out_df$Num_Rates <- factor(out_df$Num_Rates, levels = c("1", "2", "12", "192"))
 
-    # num_diff_gene_results <- sum(out$`192_with_cv`$sel_cv$qallsubs_cv != out$`192_without_cv`$sel_cv$qallsubs_cv)
-    # if(num_diff_gene_results > 0) {
-    #     warning("Results are different with and without covariates!!")
-    # } else {
-    #     # FOR NOW, only use without covariates since the results seem to be the same
-    #     out_df <- out_df[out_df$Covariates == "without"]
-    # }
     out_df$Mechanism <- mechanism
     return(out_df)
 }
@@ -77,4 +70,4 @@ sel_sbs22_df <- get_sel_df(out_sbs22, "SBS22")
 
 sel_all_df <- rbind(sel_sbs1_df, sel_sbs22_df)
 
-# None is significant
+# None are significant

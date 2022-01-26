@@ -1,7 +1,5 @@
 library(parallel)
 
-# Simulation without controlling for trinucleotide context
-
 sigs_path <- "inst/extdata/COSMIC-signatures.SBS-96.tsv"
 sigs_df <- t(read.table(sigs_path, header = TRUE, row.names = 1, check.names = FALSE))
 

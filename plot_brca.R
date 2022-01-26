@@ -151,10 +151,3 @@ ggplot(trunc_signif_df, aes(x = log2(wnon_cv), y = minuslog10p_trunc, color = Me
     )
 
 ggsave("pqe_plots/dnds_by_sm_tstv_brca_uk_volcano_non.png", scale = 1, width = 8, height = 6, units = "in")
-
-
-## ----------
-## With neutral simulated dataset
-
-
-

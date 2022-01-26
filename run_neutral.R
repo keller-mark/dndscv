@@ -124,8 +124,6 @@ get_out_df <- function(out, mechanism) {
 out_sbs1 <- run_subs_models(sbs1_df)
 saveRDS(out_sbs1, "inst/extdata/out_sbs1.rds")
 
-rm("out_sbs1")
-
 out_sbs22 <- run_subs_models(sbs22_df)
 saveRDS(out_sbs22, "inst/extdata/out_sbs22.rds")
 
